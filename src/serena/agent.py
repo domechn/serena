@@ -1442,7 +1442,7 @@ class ReadFileTool(Tool):
     """
 
     def apply(
-        self, relative_path: str, start_line: int = 0, end_line: int | None = None, max_answer_chars: int = _DEFAULT_MAX_ANSWER_LENGTH
+        self, relative_path: str, start_line: int = 0, end_line: int | None = None, max_answer_chars: int = _DEFAULT_MAX_ANSWER_LENGTH, show_line_numbers: bool = False
     ) -> str:
         """
         Reads the given file or a chunk of it. Generally, symbolic operations
@@ -1455,6 +1455,7 @@ class ReadFileTool(Tool):
         :param max_answer_chars: if the file (chunk) is longer than this number of characters,
             no content will be returned. Don't adjust unless there is really no other way to get the content
             required for the task.
+        :param show_line_numbers: whether to show line numbers in the output (default: False)
         :return: the full text of the file at the given relative path
         """
         self.agent.validate_relative_path(relative_path)
@@ -1466,6 +1467,8 @@ class ReadFileTool(Tool):
         else:
             self.lines_read.add_lines_read(relative_path, (start_line, end_line))
             result_lines = result_lines[start_line : end_line + 1]
+        if show_line_numbers:
+            result_lines = [f"{i + 1 + start_line}: {line}" for i, line in enumerate(result_lines)]
         result = "\n".join(result_lines)
 
         return self._limit_length(result, max_answer_chars)
