@@ -1442,7 +1442,7 @@ class ReadFileTool(Tool):
     """
 
     def apply(
-        self, relative_path: str, start_line: int = 0, end_line: int | None = None, max_answer_chars: int = _DEFAULT_MAX_ANSWER_LENGTH, show_line_numbers: bool = False
+        self, relative_path: str, start_line: int = 1, end_line: int | None = None, max_answer_chars: int = _DEFAULT_MAX_ANSWER_LENGTH, show_line_numbers: bool = False
     ) -> str:
         """
         Reads the given file or a chunk of it. Generally, symbolic operations
@@ -1450,8 +1450,8 @@ class ReadFileTool(Tool):
         Reading the entire file is only recommended if there is no other way to get the content required for the task.
 
         :param relative_path: the relative path to the file to read
-        :param start_line: the 0-based index of the first line to be retrieved.
-        :param end_line: the 0-based index of the last line to be retrieved (inclusive). If None, read until the end of the file.
+        :param start_line: the 1-based index of the first line to be retrieved.
+        :param end_line: the 1-based index of the last line to be retrieved (inclusive). If None, read until the end of the file.
         :param max_answer_chars: if the file (chunk) is longer than this number of characters,
             no content will be returned. Don't adjust unless there is really no other way to get the content
             required for the task.
@@ -1462,13 +1462,17 @@ class ReadFileTool(Tool):
 
         result = self.language_server.retrieve_full_file_content(relative_path)
         result_lines = result.splitlines()
-        if end_line is None:
-            result_lines = result_lines[start_line:]
+        if start_line < 1 or (end_line is not None and end_line < 1):
+            raise ValueError(f"start_line and end_line must be at least 1, but is {start_line}")
+        start_index = start_line - 1  # convert to 0-based index
+        end_index = end_line - 1 if end_line is not None else None
+        if end_index is None:
+            result_lines = result_lines[start_index:]
         else:
-            self.lines_read.add_lines_read(relative_path, (start_line, end_line))
-            result_lines = result_lines[start_line : end_line + 1]
+            self.lines_read.add_lines_read(relative_path, (start_index, end_index))
+            result_lines = result_lines[start_index : end_index + 1]
         if show_line_numbers:
-            result_lines = [f"{i + 1 + start_line}: {line}" for i, line in enumerate(result_lines)]
+            result_lines = [f"{i + 1 + start_index}: {line}" for i, line in enumerate(result_lines)]
         result = "\n".join(result_lines)
 
         return self._limit_length(result, max_answer_chars)
