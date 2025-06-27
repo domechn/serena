@@ -94,6 +94,7 @@ class TestSerenaAgent:
             pytest.param(Language.RUST, "add", "Function", "lib.rs", marks=pytest.mark.rust),
             pytest.param(Language.TYPESCRIPT, "DemoClass", "Class", "index.ts", marks=pytest.mark.typescript),
             pytest.param(Language.PHP, "helperFunction", "Function", "helper.php", marks=pytest.mark.php),
+            pytest.param(Language.SWIFT, "capitalizeFirstLetter", "Function", "StringExtensions.swift", marks=pytest.mark.swift),
         ],
         indirect=["serena_agent"],
     )
@@ -132,6 +133,7 @@ class TestSerenaAgent:
             pytest.param(Language.RUST, "add", os.path.join("src", "lib.rs"), os.path.join("src", "main.rs"), marks=pytest.mark.rust),
             pytest.param(Language.TYPESCRIPT, "helperFunction", "index.ts", "use_helper.ts", marks=pytest.mark.typescript),
             pytest.param(Language.PHP, "helperFunction", "helper.php", "index.php", marks=pytest.mark.php),
+            pytest.param(Language.SWIFT, "capitalizeFirstLetter", "Function", "StringExtensions.swift", marks=pytest.mark.swift),
         ],
         indirect=["serena_agent"],
     )
